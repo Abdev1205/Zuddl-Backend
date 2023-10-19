@@ -5,14 +5,38 @@ const card = require('../models/card');
 const mongoose = require('mongoose');
 
 // Function to fetch all boards
-const getAllBoards = async (req, res, next) => {
-  try {
-    // Find all boards in the database
-    const allBoards = await board.find();
+const getBoardsByUserEmail = async (req, res, next) => {
+  const { userEmail } = req.params; // Extract userEmail from the route parameter
 
-    res.status(200).json({ message: 'All boards fetched successfully', boards: allBoards });
+  try {
+    // Find boards with matching username (userEmail)
+    const userBoards = await board.find({ userEmail: userEmail });
+
+    if (userBoards.length === 0) {
+      res.status(404).json({ message: 'No boards found for the specified userEmail' });
+    } else {
+      res.status(200).json({ message: 'Boards fetched successfully', boards: userBoards });
+    }
   } catch (error) {
-    console.error('Error fetching all boards:', error.message);
+    console.error('Error fetching boards by userEmail:', error.message);
+    res.status(500).json(error.message);
+  }
+};
+
+const getBoardById = async (req, res, next) => {
+  const boardId = req.params.boardId; // Extract boardId from the route parameter
+
+  try {
+    // Find the board by _id
+    const boardData = await board.findById(boardId);
+
+    if (!board) {
+      res.status(404).json({ message: 'Board not found' });
+    } else {
+      res.status(200).json({ message: 'Board fetched successfully', boardData });
+    }
+  } catch (error) {
+    console.error('Error fetching board by _id:', error.message);
     res.status(500).json(error.message);
   }
 };
@@ -62,28 +86,23 @@ const deleteBoard = async (req, res, next) => {
 // Function to edit a board
 const editBoard = async (req, res, next) => {
   try {
-    const { boardId } = req.params;
-    const { boardTitle, visibility, desc, background } = req.body;
+    const boardId = req.params.boardId; // Get the stage ID from the route parameters
+    const updates = req.body; // Get the updates from the request body
 
-    // Check if the board exists
-    const existingBoard = await board.findById(boardId);
+    // Update the board using findByIdAndUpdate
+    const updatedBoard = await board.findByIdAndUpdate(
+      boardId,
+      { $set: updates }, // Use the $set operator to update specific fields
+      { new: true } // Return the updated stage
+    );
 
-    if (!existingBoard) {
-      return res.status(404).json({ message: 'Board not found' });
+    if (!updatedBoard) {
+      return res.status(404).json({ message: 'board not found' });
     }
-
-    // Update the board properties
-    existingBoard.boardTitle = boardTitle || existingBoard.boardTitle;
-    existingBoard.visibility = visibility || existingBoard.visibility;
-    existingBoard.desc = desc || existingBoard.desc;
-    existingBoard.background = background || existingBoard.background;
-
-    // Save the updated board to the database
-    const updatedBoard = await existingBoard.save();
 
     res.status(200).json({ message: 'Board updated successfully', board: updatedBoard });
   } catch (error) {
-    console.error('Error editing board:', error.message);
+    console.error('Error updating stage:', error.message);
     res.status(500).json(error.message);
   }
 };
@@ -306,4 +325,4 @@ const testApi = async (req, res, next) => {
   res.status(200).json('Welcome to my API');
 };
 
-module.exports = { createBoard, testApi, createStage, createCard, createUser, deleteBoard, editBoard, deleteStage, updateStage, deleteCard, updateCard, getAllBoards, getAllStagesInBoard, getAllCardInStages, getCardDataById };
+module.exports = { createBoard, testApi, createStage, createCard, createUser, deleteBoard, editBoard, deleteStage, updateStage, deleteCard, updateCard, getBoardsByUserEmail, getBoardById, getAllStagesInBoard, getAllCardInStages, getCardDataById };

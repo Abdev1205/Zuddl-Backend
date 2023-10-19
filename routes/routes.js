@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getAllBoards, createBoard, testApi, createStage, createCard, createUser, deleteBoard, editBoard, deleteStage, updateStage, deleteCard, updateCard, getAllStagesInBoard, getAllCardInStages, getCardDataById } = require('../controllers/controller'); // Import the createBoard function
+const { getBoardsByUserEmail, getBoardById, createBoard, testApi, createStage, createCard, createUser, deleteBoard, editBoard, deleteStage, updateStage, deleteCard, updateCard, getAllStagesInBoard, getAllCardInStages, getCardDataById } = require('../controllers/controller'); // Import the createBoard function
 
 // Route for creating a board
-router.get('/board', getAllBoards);
+router.get('/boards/user/:userEmail', getBoardsByUserEmail);
+router.get('/boards/:boardId', getBoardById);
 router.post('/board/create', createBoard);
 router.delete('/delete/boards/:boardId', deleteBoard);
 router.put('/update/boards/:boardId', editBoard)
