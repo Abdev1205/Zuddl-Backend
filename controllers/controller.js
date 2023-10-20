@@ -24,7 +24,7 @@ const getBoardsByUserEmail = async (req, res, next) => {
 };
 
 const getBoardById = async (req, res, next) => {
-  const boardId = req.params.boardId; // Extract boardId from the route parameter
+  const boardId = req.params.boardId;
 
   try {
     // Find the board by _id
